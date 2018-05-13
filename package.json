@@ -1,0 +1,16 @@
+{
+  "name": "arojectdark",
+  "version": "0.0.1",
+  "description": "Project Dark",
+  "main": "index.js",
+  "license": "",
+  "scripts": {
+    "dev": "pm2-dev start index.js"
+  },
+  "dependencies": {
+    "discord.js": "^11.3.2",
+    "dotenv": "^5.0.1",
+    "lodash": "^4.17.10",
+    "sqlite": "^2.9.1"
+  }
+}
