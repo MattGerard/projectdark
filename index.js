@@ -69,52 +69,55 @@ client.on('message', msg => {
     sql
       .get(`SELECT * FROM users WHERE discordId = "${msg.author.id}"`)
       .then(row => {
-        console.log(row, 'data?');
-        const message = `you've already joined! Create your Org with !createorg organization_name`;
+        console.log(row, 'Join Response data if user found?');
+        const message = `you've already joined! Create your first villager with !createorg organization_name`;
         msg.reply(message);
       })
       .catch(err => {
-        console.log(err, 'asd');
+        console.log(err, 'join error, user not found, creating user');
         sql
           .run(
             'CREATE TABLE IF NOT EXISTS users (uid INTEGER PRIMARY KEY AUTOINCREMENT, discordId INTEGER)'
           )
           .then(() => {
             sql.run('INSERT INTO users (discordId) VALUES (?)', [msg.author.id]).then(() => {
-              const message = `create your Org with !createorg organization_name`;
+              const message = `your first villager was born 18 years old. Until now, they've only been known as ______, give them a new name. !newname villager_name`;
               msg.reply(message);
             });
           });
       });
   }
 
-  if (command === 'createorg') {
+  if (command === 'newname') {
     // roleCMD(client, msg, args);
     sql
       .get(
-        `SELECT users.discordId, orgId, name FROM users LEFT JOIN organizations ON organizations.ownerId = users.discordId WHERE users.discordId = ${
+        `SELECT users.uid, id, name FROM users LEFT JOIN villagers ON villagers.ownerId = users.uid WHERE users.uid = ${
           msg.author.id
         }`
       )
       .then(row => {
-        console.log(row, 'data?');
-        const message = `you've already created an org. Get your orgs details using !org`;
+        console.log(row, 'See if i already own a villager?');
+        const message = `You already named the vilager`;
         msg.reply(message);
       })
       .catch(err => {
-        console.log(err, 'asd');
+        console.log(err, 'New villager being created');
         sql
           .run(
-            'CREATE TABLE IF NOT EXISTS organizations (orgId INTEGER PRIMARY KEY AUTOINCREMENT, ownerId INTEGER, name text)'
+            'CREATE TABLE IF NOT EXISTS villagers (id INTEGER PRIMARY KEY AUTOINCREMENT, ownerId INTEGER, name text)'
           )
           .then(() => {
-            let [organization_name] = args;
-            if (!organization_name) return;
+            let [villager_name] = args;
+            if (!villager_name) return;
 
-            sql.run('INSERT INTO organizations (ownerId, name) VALUES (?, ?)', [
+            sql.run('INSERT INTO villagers (ownerId, name) VALUES (?, ?)', [
               msg.author.id,
-              organization_name,
+              villager_name,
             ]);
+          })
+          .catch(err => {
+            console.log(err, 'Something broke on naming');
           });
       });
   }
@@ -173,7 +176,7 @@ client.on('message', msg => {
 
     sql
       .get(
-        `SELECT users.discordId, orgId, name FROM users LEFT JOIN organizations ON organizations.ownerId = users.discordId WHERE users.discordId = ${
+        `SELECT users.uid, id, name FROM users LEFT JOIN villagers ON villagers.ownerId = users.uid WHERE users.uid = ${
           msg.author.id
         }`
       )
@@ -255,16 +258,33 @@ client.on('message', msg => {
 // 	discordId integer
 // );
 
-// CREATE TABLE organizations (
-// 	orgId integer PRIMARY KEY AUTOINCREMENT,
-// 	ownerId integer,
-// 	name text
+// CREATE TABLE Quests (
+// 	questId integer PRIMARY KEY AUTOINCREMENT,
+// 	name text,
+// 	rewards varchar
 // );
 
-// CREATE TABLE souls (
-// 	soulId integer PRIMARY KEY AUTOINCREMENT,
-// 	orgId integer,
-// 	name text
+// CREATE TABLE Rewards (
+// 	id integer PRIMARY KEY AUTOINCREMENT,
+// 	type text
+// );
+
+// CREATE TABLE RewardTypes (
+// 	type text
+// );
+
+// CREATE TABLE Villagers (
+// 	name text,
+// 	id integer PRIMARY KEY AUTOINCREMENT,
+// 	ownerId integer
+// );
+
+// CREATE TABLE Questing (
+// 	id integer PRIMARY KEY AUTOINCREMENT,
+// 	users varchar,
+// 	questId integer,
+// 	status text,
+// 	villagers integer
 // );
 
 //Login the bot
